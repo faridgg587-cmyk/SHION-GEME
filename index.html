@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shion OS - Avatar Aura System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap');
+
+        :root {
+            --neon-purple: #9d4edd;
+            --dark-bg: #050505;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: #e0e1dd;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            margin: 0;
+            user-select: none;
+        }
+
+        .font-gaming { font-family: 'Orbitron', sans-serif; }
+
+        /* BORDER AVATAR STYLES */
+        .avatar-container {
+            position: relative;
+            display: inline-block;
+            transition: all 0.5s ease;
+        }
+
+        /* Border: Newbie (Minimalist) */
+        .border-newbie {
+            border: 2px solid #475569;
+            padding: 2px;
+        }
+
+        /* Border: Rising Star (Neon Blue) */
+        .border-rising {
+            border: 3px solid #0ea5e9;
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.5);
+            padding: 3px;
+        }
+
+        /* Border: Influencer (Gold Shine) */
+        .border-influencer {
+            border: 4px solid #fbbf24;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+            padding: 4px;
+            background: linear-gradient(45deg, #fbbf24, #fff, #d97706);
+            background-size: 200% 200%;
+            animation: goldShine 3s linear infinite;
+        }
+
+        /* Border: Elite (Pink Pulse) */
+        .border-elite {
+            border: 5px solid #db2777;
+            box-shadow: 0 0 25px rgba(219, 39, 119, 0.6);
+            padding: 4px;
+            animation: pinkPulse 2s infinite ease-in-out;
+        }
+
+        /* Border: Legend (Animated Purple Aura) */
+        .border-legend {
+            padding: 6px;
+            background: conic-gradient(from 0deg, #7e22ce, #a855f7, #3b82f6, #7e22ce);
+            animation: rotateAura 4s linear infinite;
+            box-shadow: 0 0 35px rgba(168, 85, 247, 0.8);
+        }
+
+        @keyframes goldShine {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes pinkPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        @keyframes rotateAura {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* UTILS */
+        .sidebar-item.active {
+            background: rgba(157, 78, 221, 0.1);
+            border-right: 3px solid var(--neon-purple);
+            color: white;
+        }
+
+        #login-overlay {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 9998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .dev-only { display: none !important; }
+        body.is-developer .dev-only { display: flex !important; }
+    </style>
+</head>
+<body class="flex h-screen">
+
+    <!-- LOGIN -->
+    <div id="login-overlay">
+        <div class="bg-[#0a0a0a] border border-white/10 p-10 rounded-3xl w-full max-w-sm">
+            <div class="text-center mb-8">
+                <h2 class="font-gaming text-xl font-bold">SHION LOGIN</h2>
+                <p class="text-[10px] text-gray-500 mt-2 uppercase tracking-widest">Dapatkan Border Role Eksklusif</p>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="auth-user" placeholder="Username" class="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:border-purple-500 outline-none transition">
+                <input type="password" id="auth-pass" placeholder="Password" class="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:border-purple-500 outline-none transition">
+                <button id="btn-auth" class="w-full bg-purple-600 py-4 rounded-xl font-bold text-xs tracking-widest hover:bg-purple-500 transition shadow-lg shadow-purple-600/20">AUTHORIZE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="w-20 md:w-64 bg-[#080808] border-r border-white/5 flex flex-col">
+        <div class="p-8">
+            <h1 class="font-gaming text-lg font-bold hidden md:block">SHION<span class="text-purple-500">OS</span></h1>
+            <i class="fas fa-shield-alt text-purple-500 text-xl md:hidden mx-auto block"></i>
+        </div>
+        <nav class="flex-1 px-4 space-y-2">
+            <button onclick="switchTab('home')" class="sidebar-item active w-full flex items-center p-4 rounded-xl text-gray-400 hover:text-white transition">
+                <i class="fas fa-th-large w-5"></i><span class="ml-4 hidden md:block text-sm font-bold">Dashboard</span>
+            </button>
+            <button onclick="switchTab('profile')" class="sidebar-item w-full flex items-center p-4 rounded-xl text-gray-400 hover:text-white transition">
+                <i class="fas fa-id-badge w-5"></i><span class="ml-4 hidden md:block text-sm font-bold">Koleksi Border</span>
+            </button>
+        </nav>
+        <div class="p-6 border-t border-white/5 bg-[#050505]">
+            <div class="flex items-center">
+                <div id="side-avatar-box" class="avatar-container rounded-lg overflow-hidden">
+                    <img id="u-ava-s" src="" class="w-10 h-10 object-cover bg-gray-900">
+                </div>
+                <div class="ml-3 hidden md:block overflow-hidden">
+                    <p id="u-name-s" class="text-xs font-bold truncate text-white">Guest</p>
+                    <button onclick="doLogout()" class="text-[9px] text-red-500 font-bold uppercase">Logout</button>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- CONTENT -->
+    <main class="flex-1 flex flex-col bg-[#0a0a0a]">
+        <header class="h-20 border-b border-white/5 flex items-center justify-between px-8">
+            <div class="flex items-center gap-3">
+                <div id="role-indicator" class="px-3 py-1 rounded border text-[9px] font-black uppercase tracking-tighter">ROLE: ANALYZING</div>
+            </div>
+            <div class="text-[9px] font-bold text-gray-500 bg-white/5 px-4 py-2 rounded-full border border-white/5">
+                FOLLOWER SYNC: <span class="text-white" id="follow-top">0</span>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-12">
+            <!-- HOME -->
+            <div id="home" class="tab-content active">
+                <div class="max-w-4xl space-y-8">
+                    <div class="p-12 bg-gradient-to-br from-purple-900/10 to-transparent rounded-[40px] border border-white/5">
+                        <h2 class="text-4xl font-gaming font-black mb-4">AVATAR <span class="text-purple-500">AURA</span></h2>
+                        <p class="text-gray-400 text-sm max-w-lg leading-relaxed">Pangkat Anda kini terlihat lebih nyata. Dapatkan lebih banyak pengikut untuk membuka bingkai avatar dengan aura mistis dan cahaya neon eksklusif.</p>
+                        
+                        <div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="bg-black/40 p-4 rounded-2xl border border-white/5 text-center">
+                                <p class="text-[9px] text-gray-500 uppercase font-bold">Border Saat Ini</p>
+                                <p id="current-border-name" class="text-xs font-gaming font-bold text-white mt-1">Standar</p>
+                            </div>
+                            <div class="bg-black/40 p-4 rounded-2xl border border-white/5 text-center">
+                                <p class="text-[9px] text-gray-500 uppercase font-bold">Status Aura</p>
+                                <p id="aura-status" class="text-xs font-gaming font-bold text-green-500 mt-1">Aktif</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROFILE -->
+            <div id="profile" class="tab-content">
+                <div class="max-w-2xl mx-auto">
+                    <div class="bg-white/5 p-12 rounded-[50px] border border-white/10 flex flex-col items-center text-center">
+                        <!-- MAIN AVATAR WITH BORDER -->
+                        <div id="main-avatar-box" class="avatar-container rounded-3xl">
+                            <img id="u-ava-l" src="" class="w-32 h-32 rounded-[20px] object-cover bg-gray-900">
+                        </div>
+                        
+                        <h3 id="u-name-l" class="text-3xl font-gaming font-bold mt-8">USERNAME</h3>
+                        <p id="u-role-text" class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.3em] mt-2">Standard Account</p>
+
+                        <div class="mt-10 flex items-center justify-center gap-12 w-full">
+                            <div>
+                                <p id="follow-l" class="text-3xl font-gaming font-bold">0</p>
+                                <p class="text-[9px] text-gray-500 uppercase font-bold tracking-widest">Pengikut</p>
+                            </div>
+                            <div class="w-px h-10 bg-white/10"></div>
+                            <div>
+                                <p class="text-3xl font-gaming font-bold">12</p>
+                                <p class="text-[9px] text-gray-500 uppercase font-bold tracking-widest">Mengikuti</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-12 flex flex-wrap justify-center gap-4">
+                            <button onclick="addFollower()" class="bg-white text-black px-8 py-3 rounded-2xl font-black text-[10px] uppercase hover:scale-105 transition active:scale-95">
+                                <i class="fas fa-user-plus mr-2"></i> Tambah Pengikut
+                            </button>
+                            <button onclick="resetData()" class="bg-red-500/10 text-red-500 border border-red-500/20 px-8 py-3 rounded-2xl font-black text-[10px] uppercase hover:bg-red-500 hover:text-white transition">
+                                Reset Data
+                            </button>
+                        </div>
+
+                        <p class="mt-8 text-[9px] text-gray-600 italic">Border akan otomatis berganti saat ambang batas pengikut tercapai.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
+        import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+        import { getFirestore, doc, setDoc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'shion-border-v8';
+
+        let userData = null;
+
+        // BORDER & ROLE CONFIG
+        const CONFIG = [
+            { name: 'Newbie', min: 0, class: 'border-newbie', color: '#94a3b8' },
+            { name: 'Rising Star', min: 101, class: 'border-rising', color: '#0ea5e9' },
+            { name: 'Influencer', min: 501, class: 'border-influencer', color: '#fbbf24' },
+            { name: 'Elite', min: 2001, class: 'border-elite', color: '#db2777' },
+            { name: 'Legend', min: 5001, class: 'border-legend', color: '#a855f7' }
+        ];
+
+        function getStatus(count) {
+            let res = CONFIG[0];
+            for (let i = CONFIG.length - 1; i >= 0; i--) {
+                if (count >= CONFIG[i].min) {
+                    res = CONFIG[i];
+                    break;
+                }
+            }
+            return res;
+        }
+
+        // AUTH
+        document.getElementById('btn-auth').onclick = async () => {
+            const user = document.getElementById('auth-user').value.trim().toLowerCase();
+            const pass = document.getElementById('auth-pass').value.trim();
+            if (!user || !pass) return;
+
+            try {
+                if (!auth.currentUser) await signInAnonymously(auth);
+                const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'u_' + btoa(user));
+                const snap = await getDoc(userRef);
+
+                if (snap.exists()) {
+                    if (snap.data().p === btoa(pass)) {
+                        initUser(snap.data());
+                    } else {
+                        alert("Password Salah!");
+                    }
+                } else {
+                    const data = {
+                        u: user,
+                        p: btoa(pass),
+                        avatar: `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${user}`,
+                        followers: 0,
+                        isDev: user === 'admin'
+                    };
+                    await setDoc(userRef, data);
+                    initUser(data);
+                }
+            } catch (e) { console.error(e); }
+        };
+
+        function initUser(data) {
+            userData = data;
+            localStorage.setItem('_shion_s8', btoa(JSON.stringify({ u: data.u })));
+            document.getElementById('login-overlay').style.display = 'none';
+            syncUI();
+            if (data.isDev) document.body.classList.add('is-developer');
+        }
+
+        function syncUI() {
+            if (!userData) return;
+            const status = getStatus(userData.followers);
+
+            // Text Data
+            const name = userData.u.toUpperCase();
+            document.getElementById('u-name-s').innerText = name;
+            document.getElementById('u-name-l').innerText = name;
+            document.getElementById('follow-top').innerText = userData.followers;
+            document.getElementById('follow-l').innerText = userData.followers;
+            document.getElementById('u-role-text').innerText = status.name + " Account";
+            document.getElementById('current-border-name').innerText = status.name;
+
+            // Avatars
+            document.getElementById('u-ava-s').src = userData.avatar;
+            document.getElementById('u-ava-l').src = userData.avatar;
+
+            // Border Application
+            const sideBox = document.getElementById('side-avatar-box');
+            const mainBox = document.getElementById('main-avatar-box');
+            
+            // Clear existing border classes
+            CONFIG.forEach(c => {
+                sideBox.classList.remove(c.class);
+                mainBox.classList.remove(c.class);
+            });
+
+            // Add current border class
+            sideBox.classList.add(status.class);
+            mainBox.classList.add(status.class);
+
+            // Header Indicator
+            const indicator = document.getElementById('role-indicator');
+            indicator.innerText = "ROLE: " + status.name;
+            indicator.style.borderColor = status.color;
+            indicator.style.color = status.color;
+        }
+
+        // ACTIONS
+        window.addFollower = async () => {
+            if (!userData) return;
+            const add = Math.floor(Math.random() * 100) + 50;
+            userData.followers += add;
+            try {
+                const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'u_' + btoa(userData.u));
+                await updateDoc(userRef, { followers: userData.followers });
+                syncUI();
+            } catch (e) { console.error(e); }
+        };
+
+        window.resetData = async () => {
+            if (!userData) return;
+            userData.followers = 0;
+            try {
+                const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'u_' + btoa(userData.u));
+                await updateDoc(userRef, { followers: 0 });
+                syncUI();
+            } catch (e) { console.error(e); }
+        };
+
+        window.doLogout = () => {
+            localStorage.removeItem('_shion_s8');
+            location.reload();
+        };
+
+        window.switchTab = (id) => {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.currentTarget.classList.add('active');
+        };
+
+        // AUTO-LOGIN
+        window.onload = async () => {
+            const saved = localStorage.getItem('_shion_s8');
+            if (saved) {
+                try {
+                    const session = JSON.parse(atob(saved));
+                    if (!auth.currentUser) await signInAnonymously(auth);
+                    const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'u_' + btoa(session.u));
+                    const snap = await getDoc(userRef);
+                    if (snap.exists()) initUser(snap.data());
+                } catch (e) { localStorage.removeItem('_shion_s8'); }
+            }
+        };
+    </script>
+</body>
+</html>
